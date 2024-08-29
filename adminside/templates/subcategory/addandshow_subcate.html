@@ -1,0 +1,58 @@
+{% extends 'adminbase.html' %}
+{% load form_tags %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white">
+            <h4 class="mb-0">Add New Subcategory</h4>
+        </div>
+        <div class="card-body">
+            <form action="" method="POST">
+                {% csrf_token %}
+                
+                <div class="form-group">
+                    <label for="id_title">Title</label>
+                    {{ form.title|add_class:"form-control" }}
+                </div>
+                
+                <div class="form-group mt-3">
+                    <label for="id_category">Category</label>
+                    {{ form.category|add_class:"form-control" }}
+                </div>
+
+                <div class="form-group mt-4">
+                    <button type="submit" class="btn btn-success">Add</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="mt-5">
+        <h4>Existing Subcategories</h4>
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Title</th>
+                    <th>Category</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for subcate in subcategories %}
+                <tr>
+                    <td>{{ subcate.id }}</td>
+                    <td>{{ subcate.title }}</td>
+                    <td>{{ subcate.category }}</td>
+                    <td>
+                        <a href="{% url 'edit_subcate' subcate.id %}" class="btn btn-warning btn-sm">Edit</a>
+                        <a href="{% url 'delete_subcate' subcate.id %}" class="btn btn-danger btn-sm">Delete</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

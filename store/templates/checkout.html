@@ -1,0 +1,181 @@
+{% extends 'base.html' %}
+
+{% load static %}
+{% block content %}
+<!-- Navbar Start -->
+<div class="container-fluid">
+    <div class="row border-top px-xl-5">
+        <div class="col-lg-3 d-none d-lg-block">
+            <a class="btn shadow-none d-flex align-items-center justify-content-between bg-primary text-white w-100" data-toggle="collapse" href="#navbar-vertical" style="height: 65px; margin-top: -1px; padding: 0 30px;">
+                <h6 class="m-0">Categories</h6>
+                <i class="fa fa-angle-down text-dark"></i>
+            </a>
+            <nav class="collapse show navbar navbar-vertical navbar-light align-items-start p-0 border border-top-0 border-bottom-0" id="navbar-vertical">
+                <div class="navbar-nav w-100 overflow-hidden" style="height: auto;">
+                    <!-- Main Categories -->
+                    {% for i in category %}
+                    <div class="nav-item">
+                        <a href="#" class="nav-link" data-toggle="collapse" data-target="#main-category-{{ main_category.id }}">
+                            {{ i.title }} <i class="fa fa-angle-down float-right mt-1"></i>
+                        </a>
+                        <div id="main-category-{{ main_category.id }}" class="collapse">
+                            <!-- Subcategories -->
+                            {% for i2 in i.category_set.all %}
+                            <div class="nav-item">
+                                <a href="#" class="nav-link pl-3" data-toggle="collapse" data-target="#subcategory-{{ subcategory.id }}">
+                                    {{ i2.title }} <i class="fa fa-angle-down float-right mt-1"></i>
+                                </a>
+                                <div id="subcategory-{{ subcategory.id }}" class="collapse">
+                                    <ul class="list-unstyled pl-4">
+                                        <!-- Items under Subcategory -->
+                                        {% for item in i2.subcategory_set.all %}
+                                        <li><a href="#">{{ item.title }}</a></li>
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </nav>
+        </div>
+        <div class="col-lg-9">
+            <nav class="navbar navbar-expand-lg bg-light navbar-light py-3 py-lg-0 px-0">
+                <a href="" class="text-decoration-none d-block d-lg-none">
+                    <h1 class="m-0 display-5 font-weight-semi-bold"><span class="text-primary font-weight-bold border px-3 mr-1">E</span>Shopper</h1>
+                </a>
+                <button type="button" class="navbar-toggler" data-toggle="collapse" data-target="#navbarCollapse">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse justify-content-between" id="navbarCollapse">
+                    <div class="navbar-nav mr-auto py-0">
+                        <a href="index.html" class="nav-item nav-link">Home</a>
+                        <a href="shop.html" class="nav-item nav-link">Shop</a>
+                        
+                        <div class="nav-item dropdown">
+                            <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">Pages</a>
+                            <div class="dropdown-menu rounded-0 m-0">
+                                <a href="cart.html" class="dropdown-item">Shopping Cart</a>
+                                <a href="checkout.html" class="dropdown-item">Checkout</a>
+                            </div>
+                        </div>
+                        <a href="contact.html" class="nav-item nav-link">Contact</a>
+                    </div>
+                    <div class="navbar-nav ml-auto py-0">
+                        {% if user.is_authenticated %}
+                        <a href="{% url 'account_logout' %}" class="nav-item nav-link">Logout</a>
+                        {% else %}
+                        <a href="{% url 'user_login' %}" class="nav-item nav-link">Login</a>
+                        <a href="{% url 'signup' %}" class="nav-item nav-link">Register</a>
+                        
+                        {% endif %}
+                    </div>
+                </div>
+            </nav>
+        </div>
+    </div>
+</div>
+<!-- Navbar End -->
+
+<div class="container-fluid pt-5">
+    <div class="row px-xl-5">
+        <div class="col-lg-8">
+            <div class="mb-4">
+                <h4 class="font-weight-semi-bold mb-4">Select Shipping Address</h4>
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        {% for address in addresses %}
+                            <div class="custom-control custom-radio">
+                                <input type="radio" class="custom-control-input" id="address{{ address.id }}" name="selected_address" value="{{ address.id }}">
+                                <label class="custom-control-label" for="address{{ address.id }}">
+                                    {{ user.first_name }} {{ user.last_name }}, {{ address.address_line1 }}, {{ address.city }}, {{ address.state }}, {{ address.country }}
+                                </label>
+                            </div>
+                        {% endfor %}
+                    </div>
+                    <button type="submit" class="btn btn-primary">Proceed to Payment</button>
+                </form>
+            </div>
+        </div>
+        
+        <!-- Cart Summary -->
+        <div class="col-lg-4">
+            <!-- Order Total Box -->
+            <div class="card border-secondary mb-5">
+                <div class="card-header bg-secondary border-0">
+                    <h4 class="font-weight-semi-bold m-0">Order Total</h4>
+                </div>
+                <div class="card-body">
+                    <h5 class="font-weight-medium mb-3">Products</h5>
+                    {% for item in cart_items %}
+                    <div class="d-flex justify-content-between">
+                        <p>{{ item.product.title }} x {{ item.quantity }}</p>
+                        <p>${{ item.total_price }}</p>
+                    </div>
+                    {% endfor %}
+                    <hr class="mt-0">
+                    <div class="d-flex justify-content-between mb-3 pt-1">
+                        <h6 class="font-weight-medium">Subtotal</h6>
+                        <h6 class="font-weight-medium">${{ subtotal }}</h6>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <h6 class="font-weight-medium">Shipping</h6>
+                        <h6 class="font-weight-medium">${{ shipping }}</h6>
+                    </div>
+                </div>
+                <div class="card-footer border-secondary bg-transparent">
+                    <div class="d-flex justify-content-between mt-2">
+                        <h5 class="font-weight-bold">Total</h5>
+                        <h5 class="font-weight-bold">${{ total }}</h5>
+                    </div>
+                </div>
+            </div>
+        
+            <!-- Payment Box -->
+            <form method="POST" action="{% url 'place_order' %}">
+                {% csrf_token %}
+                <div class="card border-secondary mb-5">
+                    <div class="card-header bg-secondary border-0">
+                        <h4 class="font-weight-semi-bold m-0">Payment</h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-group">
+                            <div class="custom-control custom-radio">
+                                <input type="radio" class="custom-control-input" name="payment" id="paypal" value="paypal" required>
+                                <label class="custom-control-label" for="paypal">Paypal</label>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="custom-control custom-radio">
+                                <input type="radio" class="custom-control-input" name="payment" id="directcheck" value="cash_on_delivery" required>
+                                <label class="custom-control-label" for="directcheck">Cash on Delivery</label>
+                            </div>
+                        </div>
+                        <div class="">
+                            <div class="custom-control custom-radio">
+                                <input type="radio" class="custom-control-input" name="payment" id="banktransfer" value="bank_transfer" required>
+                                <label class="custom-control-label" for="banktransfer">Bank Transfer</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-footer border-secondary bg-transparent">
+                        <button type="submit" class="btn btn-lg btn-block btn-primary font-weight-bold my-3 py-3">Place Order</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>   
+</div>   
+<!-- Checkout End -->
+
+
+
+
+
+
+
+
+{% endblock content %}

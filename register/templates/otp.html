@@ -1,0 +1,31 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+   <head>
+      <meta charset="utf-8">
+      <title>OTP Verification | CodeLab</title>
+      <link rel="stylesheet" href="{% static 'css/style1.css' %}">
+   </head>
+   <body>
+      <div class="wrapper">
+         <div class="title">
+            OTP Verification
+         </div>
+         <form action="/register/otp/{{ id }}/" method="post">
+            {% csrf_token %}
+            <div class="field">
+               <input id="otp" type="text" name="otp" required>
+               <label>Enter OTP</label>
+            </div>
+            <div class="field">
+               <input type="submit" value="Verify">
+            </div>
+            <div class="signup-link">
+               {% for message in messages %}
+               <h3 style="color: red;">{{message}}</h3>
+               {% endfor %}
+            </div>
+         </form>
+      </div>
+   </body>
+</html>

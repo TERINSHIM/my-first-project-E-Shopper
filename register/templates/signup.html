@@ -1,0 +1,73 @@
+{% load static %}
+{% load socialaccount %}
+
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="utf-8">
+    <title>Signup Form Design | CodeLab</title>
+    <link rel="stylesheet" href="{% static 'css/style1.css' %}">
+</head>
+<body>
+    <div class="wrapper">
+        <div class="title">
+            Signup Form
+        </div>
+        <form action="{% url 'signup' %}" method="post">
+            {% csrf_token %}
+            <div class="field">
+                <input type="text" name="username" id="username" required>
+                <label>Name</label>
+            </div>
+            <div class="field">
+                <input type="email" name="email" id="email" required>
+                <label>Email Address</label>
+            </div>
+            <div class="field">
+                <input type="tel" name="phone" id="phone" 
+                pattern="^(?!0000000000)(?!.*(\d)\1{4})\d{10}$" 
+                required title="Enter a valid 10-digit phone number without any sequence of 5 or more repeated digits and not all zeros">
+                <label>Phone No.</label>
+            </div>
+            <div class="field">
+                <input type="password" name="password" id="password" 
+                pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*]).{8,}" 
+                required title="Password must be at least 8 characters long, contain at least one uppercase letter, one lowercase letter, one number, and one special character.">
+                <label>Password</label>
+            </div>
+            <div class="field">
+                <input type="password" name="confpassword" id="confpassword" required>
+                <label>Confirm Password</label>
+            </div>
+            <div class="field">
+                <input type="submit" value="Signup">
+            </div>
+            <div class="signup-link">
+                Already a member? <a href="{% url 'user_login' %}">Login now</a>
+                <a href="{% provider_login_url 'google' %}" class="google-signin-btn">
+                    <img src="https://developers.google.com/identity/images/btn_google_signin_light_normal_web.png" alt="Sign up with Google">
+                </a>
+            
+                {% for messages in messages %}
+                <h3 style="color: red;">{{messages}}</h3>
+                {% endfor %}
+            </div>
+            
+        </form>
+    </div>
+
+    <script>
+        // Confirm Password Validation
+        const password = document.getElementById("password");
+        const confirmPassword = document.getElementById("confpassword");
+
+        confirmPassword.addEventListener("input", function() {
+            if (password.value !== confirmPassword.value) {
+                confirmPassword.setCustomValidity("Passwords do not match");
+            } else {
+                confirmPassword.setCustomValidity("");
+            }
+        });
+    </script>
+</body>
+</html>

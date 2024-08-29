@@ -1,0 +1,55 @@
+{% extends 'adminbase.html' %}
+<!-- {% load form_tags %} -->
+
+{% block content %}
+<div class="container mt-4">
+    <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white">
+            <h4 class="mb-0">Add New Maincategory</h4>
+        </div>
+        <div class="card-body">
+            <form action="" method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                
+                <div class="form-group">
+                    <label for="id_title">Title</label>
+                    {{ form.title|add_class:"form-control" }}
+                </div>
+
+                
+
+                <div class="form-group mt-4">
+                    <button type="submit" class="btn btn-success">Add</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="mt-5">
+        <h4>Existing Maincategory</h4>
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Title</th>
+                    
+                </tr>
+            </thead>
+            <tbody>
+                {% for main in maincate %}
+                <tr>
+                    <td>{{main.id}}</td>
+                    <td>{{ main.title }}</td>
+                    
+                    <td>
+                        <a href="{% url 'edit_main' main.id %}" class="btn btn-warning btn-sm">Edit</a>
+                        <a href="{% url 'delete_main' main.id %}" class="btn btn-danger btn-sm">Delete</a>
+
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

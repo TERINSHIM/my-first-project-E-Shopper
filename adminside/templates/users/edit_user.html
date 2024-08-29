@@ -1,0 +1,45 @@
+{% extends 'adminbase.html' %}
+{% load form_tags %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white">
+            <h4 class="mb-0">Edit User</h4>
+        </div>
+        <div class="card-body">
+            <form action="" method="POST">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="id_username">Username</label>
+                    {{ form.username|add_class:"form-control" }}
+                </div>
+
+                <div class="form-group mt-3">
+                    <label for="id_email">Email</label>
+                    {{ form.email|add_class:"form-control" }}
+                </div>
+
+                <div class="form-group mt-3">
+                    <label for="id_first_name">First Name</label>
+                    {{ form.first_name|add_class:"form-control" }}
+                </div>
+
+                <div class="form-group mt-3">
+                    <label for="id_last_name">Last Name</label>
+                    {{ form.last_name|add_class:"form-control" }}
+                </div>
+
+                <div class="form-group mt-3">
+                    <label for="id_is_staff">Staff Status</label>
+                    {{ form.is_staff|add_class:"form-control" }}
+                </div>
+
+                <div class="form-group mt-4">
+                    <button type="submit" class="btn btn-success">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

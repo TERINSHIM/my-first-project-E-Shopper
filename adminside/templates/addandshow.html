@@ -1,0 +1,73 @@
+{% extends 'adminbase.html' %}
+<!-- {% load form_tags %} -->
+
+{% block content %}
+<div class="container mt-4">
+    <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white">
+            <h4 class="mb-0">Add New Slider</h4>
+        </div>
+        <div class="card-body">
+            <form action="" method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                
+                <div class="form-group">
+                    <label for="id_title">Title</label>
+                    {{ form.title|add_class:"form-control" }}
+                </div>
+
+                <div class="form-group mt-3">
+                    <label for="id_image">Image</label>
+                    {{ form.image|add_class:"form-control-file" }}
+                </div>
+
+                <div class="form-group mt-3">
+                    <label for="id_discount">Discount</label>
+                    {{ form.discount|add_class:"form-control" }}
+                </div>
+
+                <div class="form-group mt-3">
+                    <label for="id_link">Link</label>
+                    {{ form.link|add_class:"form-control" }}
+                </div>
+
+                <div class="form-group mt-4">
+                    <button type="submit" class="btn btn-success">Add</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="mt-5">
+        <h4>Existing Sliders</h4>
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Title</th>
+                    <th>Image</th>
+                    <th>Discount</th>
+                    <th>Link</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for slider in sliders %}
+                <tr>
+                    <td>{{slider.id}}</td>
+                    <td>{{ slider.title }}</td>
+                    <td><img src="{{ slider.image.url }}" alt="{{ slider.title }}" width="100"></td>
+                    <td>{{ slider.discount }}%</td>
+                    <td><a href="{{ slider.link }}">{{ slider.link }}</a></td>
+                    <td>
+                        <a href="{% url 'edit_navslider' slider.id %}" class="btn btn-warning btn-sm">Edit</a>
+                        <a href="{% url 'delete_slider' slider.id %}" class="btn btn-danger btn-sm">Delete</a>
+
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,80 @@
+{% extends 'adminbase.html' %}
+{% load form_tags %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white">
+            <h4 class="mb-0">Add New Category</h4>
+        </div>
+        <div class="card-body">
+            <form action="" method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                
+                {% if form.errors %}
+                <div class="alert alert-danger">
+                    <ul>
+                        {% for field in form %}
+                            {% for error in field.errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                        {% endfor %}
+                        {% for error in form.non_field_errors %}
+                            <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                {% endif %}
+                
+                <div class="form-group">
+                    <label for="id_title">Title</label>
+                    {{ form.title|add_class:"form-control" }}
+                </div>
+
+                <div class="form-group mt-3">
+                    <label for="id_image">Image</label>
+                    {{ form.image|add_class:"form-control-file" }}
+                </div>
+
+                <div class="form-group mt-3">
+                    <label for="id_maincategory">Maincategory</label>
+                    {{ form.maincategory|add_class:"form-control" }}
+                </div>
+
+                <div class="form-group mt-4">
+                    <button type="submit" class="btn btn-success">Add</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="mt-5">
+        <h4>Existing Categories</h4>
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Title</th>
+                    <th>Image</th>
+                    <th>Maincategory</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for cate in category %}
+                <tr>
+                    <td>{{ cate.id }}</td>
+                    <td>{{ cate.title }}</td>
+                    <td><img src="{{ cate.image.url }}" alt="{{ cate.title }}" width="100"></td>
+                    <td>{{ cate.maincategory }}</td>
+                    <td>
+                        <a href="{% url 'edit_cate' cate.id %}" class="btn btn-warning btn-sm">Edit</a>
+                        <a href="{% url 'delete_cate' cate.id %}" class="btn btn-danger btn-sm">Delete</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

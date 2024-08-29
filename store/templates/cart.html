@@ -1,0 +1,228 @@
+{% extends 'base.html' %}
+{% load static %}
+
+
+{% block content %}
+
+<!-- Navbar Start -->
+<div class="container-fluid">
+    <div class="row border-top px-xl-5">
+        <div class="col-lg-3 d-none d-lg-block">
+            <a class="btn shadow-none d-flex align-items-center justify-content-between bg-primary text-white w-100" data-toggle="collapse" href="#navbar-vertical" style="height: 65px; margin-top: -1px; padding: 0 30px;">
+                <h6 class="m-0">Categories</h6>
+                <i class="fa fa-angle-down text-dark"></i>
+            </a>
+            <nav class="collapse show navbar navbar-vertical navbar-light align-items-start p-0 border border-top-0 border-bottom-0" id="navbar-vertical">
+                <div class="navbar-nav w-100 overflow-hidden" style="height: auto;">
+                    <!-- Main Categories -->
+                    {% for i in category %}
+                    <div class="nav-item">
+                        <a href="#" class="nav-link" data-toggle="collapse" data-target="#main-category-{{ main_category.id }}">
+                            {{ i.title }} <i class="fa fa-angle-down float-right mt-1"></i>
+                        </a>
+                        <div id="main-category-{{ main_category.id }}" class="collapse">
+                            <!-- Subcategories -->
+                            {% for i2 in i.category_set.all %}
+                            <div class="nav-item">
+                                <a href="#" class="nav-link pl-3" data-toggle="collapse" data-target="#subcategory-{{ subcategory.id }}">
+                                    {{ i2.title }} <i class="fa fa-angle-down float-right mt-1"></i>
+                                </a>
+                                <div id="subcategory-{{ subcategory.id }}" class="collapse">
+                                    <ul class="list-unstyled pl-4">
+                                        <!-- Items under Subcategory -->
+                                        {% for item in i2.subcategory_set.all %}
+                                        <li><a href="#">{{ item.title }}</a></li>
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </nav>
+        </div>
+        <div class="col-lg-9">
+            <nav class="navbar navbar-expand-lg bg-light navbar-light py-3 py-lg-0 px-0">
+                <a href="" class="text-decoration-none d-block d-lg-none">
+                    <h1 class="m-0 display-5 font-weight-semi-bold"><span class="text-primary font-weight-bold border px-3 mr-1">E</span>Shopper</h1>
+                </a>
+                <button type="button" class="navbar-toggler" data-toggle="collapse" data-target="#navbarCollapse">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse justify-content-between" id="navbarCollapse">
+                    <div class="navbar-nav mr-auto py-0">
+                        <a href="index.html" class="nav-item nav-link">Home</a>
+                        <a href="shop.html" class="nav-item nav-link">Shop</a>
+                        
+                        <div class="nav-item dropdown">
+                            <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">Pages</a>
+                            <div class="dropdown-menu rounded-0 m-0">
+                                <a href="cart.html" class="dropdown-item">Shopping Cart</a>
+                                <a href="checkout.html" class="dropdown-item">Checkout</a>
+                            </div>
+                        </div>
+                        <a href="contact.html" class="nav-item nav-link">Contact</a>
+                    </div>
+                    <div class="navbar-nav ml-auto py-0">
+                        {% if user.is_authenticated %}
+                        <a href="{% url 'account_logout' %}" class="nav-item nav-link">Logout</a>
+                        {% else %}
+                        <a href="{% url 'user_login' %}" class="nav-item nav-link">Login</a>
+                        <a href="{% url 'signup' %}" class="nav-item nav-link">Register</a>
+                        
+                        {% endif %}
+                    </div>
+                </div>
+            </nav>
+        </div>
+    </div>
+</div>
+<!-- Navbar End -->
+
+
+
+
+<div class="container-fluid pt-5">
+    <div class="row px-xl-5">
+        <div class="col-lg-8 table-responsive mb-5">
+            <table class="table table-bordered text-center mb-0">
+                <thead class="bg-secondary text-dark">
+                    <tr>
+                        <th>Products</th>
+                        <th>Price</th>
+                        <th>Quantity</th>
+                        <th>Total</th>
+                        <th>Remove</th>
+                    </tr>
+                </thead>
+                <tbody class="align-middle">
+                    {% for item in cart_items %}
+                    <tr>
+                        <td class="align-middle"><img src="{{ item.product.Featured_image.url }}" alt="" style="width: 50px;"> {{ item.product.title|truncatechars:20 }}</td>
+                        <td class="align-middle">${{ item.product.price }}</td>
+                        <td class="align-middle">
+                            <div class="input-group quantity mx-auto" style="width: 100px;">
+                                <div class="input-group-btn">
+                                    <button class="btn btn-sm btn-primary btn-minus" data-id="{{ item.id }}" data-price="{{ item.product.price }}">
+                                        <i class="fa fa-minus"></i>
+                                    </button>
+                                </div>
+                                <input type="text" class="form-control form-control-sm bg-secondary text-center quantity-input" value="{{ item.quantity }}" data-id="{{ item.id }}">
+                                <div class="input-group-btn">
+                                    <button class="btn btn-sm btn-primary btn-plus" data-id="{{ item.id }}" data-price="{{ item.product.price }}">
+                                        <i class="fa fa-plus"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="align-middle item-total" id="item-total-{{ item.id }}">${{ item.total_price }}</td>
+                        <td class="align-middle">
+                            <form method="post" action="{% url 'remove_from_cart' item.id %}">
+                                {% csrf_token %}
+                                <button class="btn btn-sm btn-primary"><i class="fa fa-times"></i></button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="text-center">Your cart is empty.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div class="col-lg-4">
+            <div class="card border-secondary mb-5">
+                <div class="card-header bg-secondary border-0">
+                    <h4 class="font-weight-semi-bold m-0">Cart Summary</h4>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex justify-content-between mb-3 pt-1">
+                        <h6 class="font-weight-medium">Subtotal</h6>
+                        <h6 class="font-weight-medium" id="subtotal">${{ subtotal }}</h6>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <h6 class="font-weight-medium">Shipping</h6>
+                        <h6 class="font-weight-medium" id="shipping">${{ shipping }}</h6>
+                    </div>
+                </div>
+                <div class="card-footer border-secondary bg-transparent">
+                    <div class="d-flex justify-content-between mt-2">
+                        <h5 class="font-weight-bold">Total</h5>
+                        <h5 class="font-weight-bold" id="total">${{ total }}</h5>
+                    </div>
+                    <a href="{% url 'checkout' %}" class="btn btn-block btn-primary my-3 py-3">Proceed To Checkout</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+    const updateCartSummary = () => {
+        let subtotal = 0;
+        document.querySelectorAll('.item-total').forEach(function (element) {
+            subtotal += parseFloat(element.textContent.replace('$', ''));
+        });
+        document.getElementById('subtotal').textContent = `$${subtotal.toFixed(2)}`;
+        const shipping = parseFloat(document.getElementById('shipping').textContent.replace('$', ''));
+        const total = subtotal + shipping;
+        document.getElementById('total').textContent = `$${total.toFixed(2)}`;
+    };
+
+    // Remove existing event listeners before adding new ones
+    document.querySelectorAll('.btn-minus').forEach(function (button) {
+        button.replaceWith(button.cloneNode(true));
+    });
+
+    document.querySelectorAll('.btn-plus').forEach(function (button) {
+        button.replaceWith(button.cloneNode(true));
+    });
+
+    // Attach event listeners
+    document.querySelectorAll('.btn-minus').forEach(function (button) {
+        button.addEventListener('click', function () {
+            const id = this.dataset.id;
+            const price = parseFloat(this.dataset.price);
+            const quantityInput = document.querySelector(`.quantity-input[data-id="${id}"]`);
+            let quantity = parseInt(quantityInput.value);
+
+            if (quantity > 1) {
+                quantity -= 1;
+                quantityInput.value = quantity;
+
+                const itemTotal = document.getElementById(`item-total-${id}`);
+                const newItemTotal = price * quantity;
+                itemTotal.textContent = `$${newItemTotal.toFixed(2)}`;
+
+                updateCartSummary();
+            }
+        });
+    });
+
+    document.querySelectorAll('.btn-plus').forEach(function (button) {
+        button.addEventListener('click', function () {
+            const id = this.dataset.id;
+            const price = parseFloat(this.dataset.price);
+            const quantityInput = document.querySelector(`.quantity-input[data-id="${id}"]`);
+            let quantity = parseInt(quantityInput.value);
+
+            quantity += 1;
+            quantityInput.value = quantity;
+
+            const itemTotal = document.getElementById(`item-total-${id}`);
+            const newItemTotal = price * quantity;
+            itemTotal.textContent = `$${newItemTotal.toFixed(2)}`;
+
+            updateCartSummary();
+        });
+    });
+});
+</script>
+
+<!-- Cart End -->
+
+
+{% endblock content %}

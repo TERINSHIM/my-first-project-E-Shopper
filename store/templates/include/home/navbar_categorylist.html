@@ -1,0 +1,36 @@
+<div class="col-lg-3 d-none d-lg-block">
+    <a class="btn shadow-none d-flex align-items-center justify-content-between bg-primary text-white w-100" data-toggle="collapse" href="#navbar-vertical" style="height: 65px; margin-top: -1px; padding: 0 30px;">
+        <h6 class="m-0">Categories</h6>
+        <i class="fa fa-angle-down text-dark"></i>
+    </a>
+    <nav class="collapse show navbar navbar-vertical navbar-light align-items-start p-0 border border-top-0 border-bottom-0" id="navbar-vertical">
+        <div class="navbar-nav w-100 overflow-hidden" style="height: auto;">
+            <!-- Main Categories -->
+            {% for i in category %}
+            <div class="nav-item">
+                <a href="#" class="nav-link" data-toggle="collapse" data-target="#main-category-{{ main_category.id }}">
+                    {{ i.title }} <i class="fa fa-angle-down float-right mt-1"></i>
+                </a>
+                <div id="main-category-{{ main_category.id }}" class="collapse">
+                    <!-- Subcategories -->
+                    {% for i2 in i.category_set.all %}
+                    <div class="nav-item">
+                        <a href="#" class="nav-link pl-3" data-toggle="collapse" data-target="#subcategory-{{ subcategory.id }}">
+                            {{ i2.title }} <i class="fa fa-angle-down float-right mt-1"></i>
+                        </a>
+                        <div id="subcategory-{{ subcategory.id }}" class="collapse">
+                            <ul class="list-unstyled pl-4">
+                                <!-- Items under Subcategory -->
+                                {% for item in i2.subcategory_set.all %}
+                                <li><a href="#">{{ item.title }}</a></li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </nav>
+</div>

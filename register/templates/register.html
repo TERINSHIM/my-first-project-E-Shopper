@@ -1,0 +1,39 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="utf-8">
+    <title>Register</title>
+    <link rel="stylesheet" href="{% static 'css/style1.css' %}">
+</head>
+<body>
+    <div class="wrapper">
+        <div class="title">
+            Register
+        </div>
+        <form action="{% url 'register' %}" method="post">
+            {% csrf_token %}
+            <div class="field">
+                <input type="text" name="username" id="username" required>
+                <label>Username</label>
+            </div>
+            <div class="field">
+                <input type="tel" name="phone" id="phone" 
+                pattern="^(?!0000000000)(?!.*(\d)\1{4})\d{10}$" 
+                required title="Enter a valid 10-digit phone number without any sequence of 5 or more repeated digits and not all zeros">
+                <label>Phone No.</label>
+            </div>
+            <div class="field">
+                <input type="submit" value="Register">
+            </div>
+            <div class="signup-link">
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="error-message" style="color: red;">{{ message }}</div>
+                    {% endfor %}
+                {% endif %}
+            </div>
+        </form>
+    </div>
+</body>
+</html>
