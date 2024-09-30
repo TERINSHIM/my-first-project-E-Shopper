@@ -51,7 +51,10 @@ INSTALLED_APPS = [
     'allauth.socialaccount.providers.facebook',
     'image_cropping',
     'easy_thumbnails',
+    'crispy_forms',
 ]
+
+CRISPY_TEMPLATE_PACK = 'Bootstrap 5'
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -77,6 +80,8 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'store.context_processors.wishlist_and_cart_counts',
+                   
             ],
         },
     },

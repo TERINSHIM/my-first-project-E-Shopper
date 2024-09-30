@@ -32,6 +32,17 @@
                 </div>
 
                 <div class="form-group mt-3">
+                    <label for="id_colors">Colors</label>
+                    {{ form.colors|add_class:"form-control" }}
+                </div>
+                
+                <div class="form-group mt-3">
+                    <label for="id_sizes">Sizes</label>
+                    {{ form.sizes|add_class:"form-control" }}
+                </div>
+                
+
+                <div class="form-group mt-3">
                     <label for="id_Featured_image">Featured Image</label>
                     {{ form.Featured_image|add_class:"form-control-file" }}
                 </div>
@@ -93,6 +104,8 @@
                     <th>Category</th>
                     <th>Price</th>
                     <th>Discount</th>
+                    <th>Color</th>
+                    <th>Size</th>
                     <th>Featured Image</th>
                     <th>Additional Info</th>
                     <th>Additional Images</th>
@@ -108,6 +121,17 @@
                     <td>{{ product.category }}</td>
                     <td>{{ product.price }}</td>
                     <td>{{ product.discount }}</td>
+                    <td>
+                        {% for color in product.colors.all %}
+                            {{ color.name }}{% if not forloop.last %}, {% endif %}
+                        {% endfor %}
+                    </td>
+                    
+                    <td>
+                        {% for size in product.sizes.all %}
+                            {{ size.name }}{% if not forloop.last %}, {% endif %}
+                        {% endfor %}
+                    </td>
                     <td>
                         {% if product.Featured_image %}
                             <img src="{{ product.Featured_image.url }}" alt="Featured Image" style="width: 50px; height: auto;">

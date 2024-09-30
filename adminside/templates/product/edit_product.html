@@ -8,6 +8,30 @@
             <h4 class="mb-0">Edit Product</h4>
         </div>
         <div class="card-body">
+            {% if form.errors %}
+                <div class="alert alert-danger">
+                    <ul>
+                        {% for field, errors in form.errors.items %}
+                            <li>{{ field }}: {{ errors|join:", " }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            {% endif %}
+
+            {% if formset.errors %}
+                <div class="alert alert-danger">
+                    <ul>
+                        {% for error in formset.non_form_errors %}
+                            <li>{{ error }}</li>
+                        {% endfor %}
+                        {% for form in formset %}
+                            {% for field, errors in form.errors.items %}
+                                <li>{{ field }}: {{ errors|join:", " }}</li>
+                            {% endfor %}
+                        {% endfor %}
+                    </ul>
+                </div>
+            {% endif %}
             <form action="" method="POST" enctype="multipart/form-data">
                 {% csrf_token %}
                 

@@ -1,0 +1,18 @@
+{% extends 'adminbase.html' %}
+{% block content %}
+<div class="container mt-4">
+    <div class="card shadow-sm">
+        <div class="card-header bg-danger text-white">
+            <h4 class="mb-0">Delete Coupon</h4>
+        </div>
+        <div class="card-body">
+            <p>Are you sure you want to delete the coupon: <strong>{{ coupon.code }}</strong>?</p>
+            <form method="POST">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger">Delete Coupon</button>
+                <a href="{% url 'coupon_list' %}" class="btn btn-secondary">Cancel</a>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

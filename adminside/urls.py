@@ -33,5 +33,18 @@ urlpatterns = [
     path('adminlogin/',views.adminlogin,name='adminlogin'),
     path('adminlogout/', views.logout_view, name='adminlogout'),
     path('admin/orders/', views.admin_order_list, name='admin_order_list'),
+
+
+
+    path('add-coupon/', views.add_coupon, name='add_coupon'),
+    path('delete-coupon/<int:coupon_id>/', views.delete_coupon, name='delete_coupon'),
+    path('coupons/', views.coupon_list, name='coupon_list'),
+
+
+    path('admin/sales-report/', views.sales_report_view, name='sales_report'),
+
+
+    path('sales-report/', views.sales_report_view, name='sales_report'),
+    path('sales-report/pdf/', views.sales_report_pdf_view, name='sales_report_pdf'),
    
 ]

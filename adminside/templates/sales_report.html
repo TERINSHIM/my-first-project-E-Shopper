@@ -1,0 +1,76 @@
+{% extends 'adminbase.html' %}
+{% load form_tags %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white">
+            <h4 class="mb-0">Sales Report</h4>
+        </div>
+        <div class="card-body">
+            <form method="get">
+                <div class="form-group">
+                    <label for="filter">Select Period</label>
+                    <select name="filter" class="form-control">
+                        <option value="daily">Today</option>
+                        <option value="weekly">This Week</option>
+                        <option value="monthly">This Month</option>
+                        <option value="custom">Custom Range</option>
+                    </select>
+                </div>
+
+                <div class="form-group mt-3">
+                    <label for="start_date">Start Date</label>
+                    <input type="date" name="start_date" class="form-control">
+                </div>
+
+                <div class="form-group mt-3">
+                    <label for="end_date">End Date</label>
+                    <input type="date" name="end_date" class="form-control">
+                </div>
+
+                <div class="form-group mt-4">
+                    <button type="submit" class="btn btn-success">Generate Report</button>
+                </div>
+
+                <div class="form-group mt-4">
+                    <a href="{% url 'sales_report_pdf' %}?filter={{ filter_option }}&start_date={{ start_date }}&end_date={{ end_date }}" class="btn btn-primary">
+                        Download PDF
+                    </a>
+                </div>
+            </form>
+
+            <hr>
+
+            <h5>Report Summary</h5>
+            <p>Total Orders: {{ total_orders }}</p>
+            <p>Total Sales: &#8377;{{ total_sales }}</p>
+            <p>Total Discounts: &#8377;{{ total_discounts }}</p>
+
+            <hr>
+
+            <h5>Orders</h5>
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Order ID</th>
+                        <th>Date</th>
+                        <th>Total Amount</th>
+                        <th>Discount</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for order in orders %}
+                    <tr>
+                        <td>{{ order.id }}</td>
+                        <td>{{ order.order_date }}</td>
+                        <td>&#8377;{{ order.total_amount }}</td>
+                        <td>&#8377;{{ order.discount }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -96,7 +96,9 @@
                             </div>
                         {% endfor %}
                     </div>
-                    <button type="submit" class="btn btn-primary">Proceed to Payment</button>
+
+                    <!-- Add Address Button -->
+                    <a href="{% url 'addaddress' %}?next=checkout" class="btn btn-secondary mb-3">Add New Address</a>
                 </form>
             </div>
         </div>
@@ -117,17 +119,51 @@
                     </div>
                     {% endfor %}
                     <hr class="mt-0">
+        
+                    <!-- Coupon Section -->
+                    <div class="mb-3">
+                        <form method="POST" action="{% url 'apply_coupon' %}">
+                            {% csrf_token %}
+                            <div class="input-group">
+                                <input type="text" class="form-control" name="coupon_code" placeholder="Enter coupon code" {% if coupon_code %} value="{{ coupon_code }}" {% endif %}>
+                                <div class="input-group-append">
+                                    <button type="submit" class="btn btn-outline-secondary">
+                                        {% if coupon_code %} Change Coupon {% else %} Apply Coupon {% endif %}
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+        
+                        {% if coupon_code %}
+                        <p class="mt-2">Coupon Applied: {{ coupon_code }} (Discount: ${{ discount }})</p>
+                        <form method="POST" action="{% url 'remove_coupon' %}">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-outline-danger">Remove Coupon</button>
+                        </form>
+                        {% endif %}
+                    </div>
+        
+                    <!-- Subtotal, Discount, and Final Total -->
                     <div class="d-flex justify-content-between mb-3 pt-1">
                         <h6 class="font-weight-medium">Subtotal</h6>
                         <h6 class="font-weight-medium">${{ subtotal }}</h6>
                     </div>
+        
+                    {% if discount > 0 %}
+                    <div class="d-flex justify-content-between">
+                        <h6 class="font-weight-medium">Discount</h6>
+                        <h6 class="font-weight-medium">- ${{ discount }}</h6>
+                    </div>
+                    {% endif %}
+        
                     <div class="d-flex justify-content-between">
                         <h6 class="font-weight-medium">Shipping</h6>
                         <h6 class="font-weight-medium">${{ shipping }}</h6>
                     </div>
-                </div>
-                <div class="card-footer border-secondary bg-transparent">
-                    <div class="d-flex justify-content-between mt-2">
+        
+                    <hr>
+        
+                    <div class="d-flex justify-content-between">
                         <h5 class="font-weight-bold">Total</h5>
                         <h5 class="font-weight-bold">${{ total }}</h5>
                     </div>
@@ -144,8 +180,8 @@
                     <div class="card-body">
                         <div class="form-group">
                             <div class="custom-control custom-radio">
-                                <input type="radio" class="custom-control-input" name="payment" id="paypal" value="paypal" required>
-                                <label class="custom-control-label" for="paypal">Paypal</label>
+                                <input type="radio" class="custom-control-input" name="payment" id="razorpay" value="razorpay" required>
+                                <label class="custom-control-label" for="razorpay">Pay with Razorpay</label>
                             </div>
                         </div>
                         <div class="form-group">
@@ -154,11 +190,17 @@
                                 <label class="custom-control-label" for="directcheck">Cash on Delivery</label>
                             </div>
                         </div>
-                        <div class="">
+                        <div class="form-group">
+                            {% if wallet_balance >= total %}
                             <div class="custom-control custom-radio">
-                                <input type="radio" class="custom-control-input" name="payment" id="banktransfer" value="bank_transfer" required>
-                                <label class="custom-control-label" for="banktransfer">Bank Transfer</label>
+                                <input type="radio" class="custom-control-input" name="payment" id="wallet" value="wallet" required>
+                                <label class="custom-control-label" for="wallet">Pay with Wallet (Balance: ${{ wallet_balance }})</label>
                             </div>
+                            {% else %}
+                            <div class="alert alert-danger">
+                                Your wallet balance (${{ wallet_balance }}) is insufficient to cover the total amount of ${{ total }}.
+                            </div>
+                            {% endif %}
                         </div>
                     </div>
                     <div class="card-footer border-secondary bg-transparent">
@@ -168,7 +210,9 @@
             </form>
         </div>
     </div>   
-</div>   
+</div>
+
+
 <!-- Checkout End -->
 
 

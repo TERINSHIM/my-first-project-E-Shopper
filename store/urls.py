@@ -21,6 +21,20 @@ urlpatterns = [
     path('place_order/', views.place_order, name='place_order'),
     path('order/',views.order,name='order'),
     path('orderdetails/<int:id>/', views.order_details, name='orderdetails'),
+    path('filter-products/', views.filter_products, name='filter_products'),
+    path('place-order/', views.place_order, name='place_order'),
+    path('payment-success/', views.payment_success, name='payment_success'),
+    path('wallet/',views.wallet_view,name='wallet'),
+    path('order/<int:id>/cancel/', views.cancel_order, name='cancel_order'),
+    path('order/<int:id>/return/', views.return_order, name='return_order'),
+    path('add_to_wishlist/<int:product_id>/', views.add_to_wishlist, name='add_to_wishlist'),
+    path('remove_from_wishlist/<int:product_id>/', views.remove_from_wishlist, name='remove_from_wishlist'),
+    path('wishlist/', views.wishlist_view, name='wishlist_view'),
+    path('move_to_cart/<int:product_id>/', views.move_to_cart, name='move_to_cart'),
+    path('apply-coupon/', views.apply_coupon, name='apply_coupon'),
+    path('remove-coupon/', views.remove_coupon, name='remove_coupon'),
+
+    path('order/<int:order_id>/download-invoice/', views.download_invoice, name='download_invoice'),
     
 
      

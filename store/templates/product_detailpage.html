@@ -94,11 +94,11 @@
                     <div class="carousel-inner border">
                         {% for image in additional_img %}
                             <div class="carousel-item {% if forloop.first %}active{% endif %}">
-                                <img src="{{ image.image.url }}" alt="{{ product.title }}" >
+                                <img src="{{ image.image.url }}" alt="{{ product.title }}">
                             </div>
                         {% endfor %}
                     </div>
-                    
+    
                     <a class="carousel-control-prev" href="#product-carousel" role="button" data-slide="prev">
                         <i class="fa fa-2x fa-angle-left text-dark"></i>
                     </a>
@@ -107,10 +107,9 @@
                     </a>
                 </div>
             </div>
-            
-
+    
             <div class="col-lg-7 pb-5">
-                <h3 class="font-weight-semi-bold">{{product.title}}</h3>
+                <h3 class="font-weight-semi-bold">{{ product.title }}</h3>
                 <div class="d-flex mb-3">
                     <div class="text-primary mr-2">
                         <small class="fas fa-star"></small>
@@ -124,75 +123,91 @@
                 <h4>&#8377;{{ product.price }}</h4>
                 <h6 class="text-danger ml-2">{{ product.discount }}% off</h6>
                 <p class="mb-4">{{ product.description|safe }}</p>
-                <div class="d-flex mb-3">
-                    <p class="text-dark font-weight-medium mb-0 mr-3">Sizes:</p>
-                    <form>
+    
+                <!-- Single Form for Size, Color, Quantity, and Add to Cart -->
+                <form method="post" action="{% url 'add_to_cart' product.id %}">
+                    {% csrf_token %}
+    
+                    <div class="d-flex mb-3">
+                        <p class="text-dark font-weight-medium mb-0 mr-3">Sizes:</p>
+                        <!-- Size Options -->
                         <div class="custom-control custom-radio custom-control-inline">
-                            <input type="radio" class="custom-control-input" id="size-1" name="size">
+                            <input type="radio" class="custom-control-input" id="size-1" name="size" value="XS" required>
                             <label class="custom-control-label" for="size-1">XS</label>
                         </div>
                         <div class="custom-control custom-radio custom-control-inline">
-                            <input type="radio" class="custom-control-input" id="size-2" name="size">
+                            <input type="radio" class="custom-control-input" id="size-2" name="size" value="S" required>
                             <label class="custom-control-label" for="size-2">S</label>
                         </div>
                         <div class="custom-control custom-radio custom-control-inline">
-                            <input type="radio" class="custom-control-input" id="size-3" name="size">
+                            <input type="radio" class="custom-control-input" id="size-3" name="size" value="M" required>
                             <label class="custom-control-label" for="size-3">M</label>
                         </div>
                         <div class="custom-control custom-radio custom-control-inline">
-                            <input type="radio" class="custom-control-input" id="size-4" name="size">
+                            <input type="radio" class="custom-control-input" id="size-4" name="size" value="L" required>
                             <label class="custom-control-label" for="size-4">L</label>
                         </div>
                         <div class="custom-control custom-radio custom-control-inline">
-                            <input type="radio" class="custom-control-input" id="size-5" name="size">
+                            <input type="radio" class="custom-control-input" id="size-5" name="size" value="XL" required>
                             <label class="custom-control-label" for="size-5">XL</label>
                         </div>
-                    </form>
-                </div>
-                <div class="d-flex mb-4">
-                    <p class="text-dark font-weight-medium mb-0 mr-3">Colors:</p>
-                    <form>
+                    </div>
+    
+                    <div class="d-flex mb-4">
+                        <p class="text-dark font-weight-medium mb-0 mr-3">Colors:</p>
+                        <!-- Color Options -->
                         <div class="custom-control custom-radio custom-control-inline">
-                            <input type="radio" class="custom-control-input" id="color-1" name="color">
+                            <input type="radio" class="custom-control-input" id="color-1" name="color" value="Black" required>
                             <label class="custom-control-label" for="color-1">Black</label>
                         </div>
                         <div class="custom-control custom-radio custom-control-inline">
-                            <input type="radio" class="custom-control-input" id="color-2" name="color">
+                            <input type="radio" class="custom-control-input" id="color-2" name="color" value="White" required>
                             <label class="custom-control-label" for="color-2">White</label>
                         </div>
                         <div class="custom-control custom-radio custom-control-inline">
-                            <input type="radio" class="custom-control-input" id="color-3" name="color">
+                            <input type="radio" class="custom-control-input" id="color-3" name="color" value="Red" required>
                             <label class="custom-control-label" for="color-3">Red</label>
                         </div>
                         <div class="custom-control custom-radio custom-control-inline">
-                            <input type="radio" class="custom-control-input" id="color-4" name="color">
+                            <input type="radio" class="custom-control-input" id="color-4" name="color" value="Blue" required>
                             <label class="custom-control-label" for="color-4">Blue</label>
                         </div>
                         <div class="custom-control custom-radio custom-control-inline">
-                            <input type="radio" class="custom-control-input" id="color-5" name="color">
+                            <input type="radio" class="custom-control-input" id="color-5" name="color" value="Green" required>
                             <label class="custom-control-label" for="color-5">Green</label>
                         </div>
-                    </form>
-                </div>
-                <div class="d-flex align-items-center mb-4 pt-2">
-                    <div class="input-group quantity mr-3" style="width: 130px;">
-                        <div class="input-group-btn">
-                            <button class="btn btn-primary btn-minus">
-                                <i class="fa fa-minus"></i>
-                            </button>
-                        </div>
-                        <input type="text" class="form-control bg-secondary text-center" value="1">
-                        <div class="input-group-btn">
-                            <button class="btn btn-primary btn-plus">
-                                <i class="fa fa-plus"></i>
-                            </button>
-                        </div>
                     </div>
-                    <form method="post" action="{% url 'add_to_cart' product.id %}">
-                        {% csrf_token %}
-                        <button class="btn btn-primary px-3"><i class="fa fa-shopping-cart mr-1"></i> Add To Cart</button>
-                    </form>
-                </div>
+    
+                    <div class="d-flex align-items-center mb-4 pt-2">
+                        <div class="input-group quantity mr-3" style="width: 130px;">
+                            <div class="input-group-btn">
+                                <button class="btn btn-primary btn-minus" type="button" onclick="this.nextElementSibling.stepDown()">
+                                    <i class="fa fa-minus"></i>
+                                </button>
+                            </div>
+                            <input type="number" class="form-control bg-secondary text-center" name="quantity" value="1" min="1" required>
+                            <div class="input-group-btn">
+                                <button class="btn btn-primary btn-plus" type="button" onclick="this.previousElementSibling.stepUp()">
+                                    <i class="fa fa-plus"></i>
+                                </button>
+                            </div>
+                        </div>
+    
+                        <!-- Add To Cart Button -->
+                        <button type="submit" class="btn btn-primary px-3">
+                            <i class="fa fa-shopping-cart mr-1"></i> Add To Cart
+                        </button>
+                    </div>
+                </form>
+    
+                <!-- Add to Wishlist Button -->
+                <form method="post" action="{% url 'add_to_wishlist' product.id %}" class="ml-3">
+                    {% csrf_token %}
+                    <button class="btn btn-secondary px-3">
+                        <i class="fa fa-heart mr-1"></i> Add to Wishlist
+                    </button>
+                </form>
+    
                 <div class="d-flex pt-2">
                     <p class="text-dark font-weight-medium mb-0 mr-2">Share on:</p>
                     <div class="d-inline-flex">
@@ -212,6 +227,7 @@
                 </div>
             </div>
         </div>
+    
         <div class="row px-xl-5">
             <div class="col">
                 <div class="nav nav-tabs justify-content-center border-secondary mb-4">
@@ -222,22 +238,16 @@
                 <div class="tab-content">
                     <div class="tab-pane fade show active" id="tab-pane-1">
                         <h4 class="mb-3">Product Description</h4>
-                        <p>{{product.product_information|safe}}</p>
-                        
+                        <p>{{ product.product_information|safe }}</p>
                     </div>
                     <div class="tab-pane fade" id="tab-pane-2">
                         <h4 class="mb-3">Additional Information</h4>
-                        
-                        <p>{{product.additional_info|safe}}</p>
-                        
-                       
-                           
-                                
-                            
+                        <p>{{ product.additional_info|safe }}</p>
+                    </div>
                     <div class="tab-pane fade" id="tab-pane-3">
                         <div class="row">
                             <div class="col-md-6">
-                                <h4 class="mb-4">1 review for "Colorful Stylish Shirt"</h4>
+                                <h4 class="mb-4">1 review for "{{ product.title }}"</h4>
                                 <div class="media mb-4">
                                     <img src="img/user.jpg" alt="Image" class="img-fluid mr-3 mt-1" style="width: 45px;">
                                     <div class="media-body">
@@ -290,6 +300,7 @@
             </div>
         </div>
     </div>
+    
     <!-- Shop Detail End -->
 
 

@@ -1,5 +1,6 @@
 from django import forms
 from .models import *
+from django.forms import inlineformset_factory
 
 class NavSliderForm(forms.ModelForm):
     class Meta:
@@ -30,12 +31,20 @@ class SubCategoryForm(forms.ModelForm):
 class ProductForm(forms.ModelForm):
     class Meta:
         model = product
-        fields = '__all__'
+        fields = ['title', 'category', 'price', 'discount', 'Featured_image', 'total', 'description', 'product_information', 'tags', 'slug', 'additional_info', 'colors', 'sizes']
+        widgets = {
+            'colors': forms.CheckboxSelectMultiple, 
+            'sizes': forms.CheckboxSelectMultiple,   
+        }  
 
 class AdditionalImageForm(forms.ModelForm):
     class Meta:
         model = AdditionalImage
         fields = ['image']
+
+AdditionalImageFormSet = inlineformset_factory(
+    product, AdditionalImage, form=AdditionalImageForm, extra=1, can_delete=True
+)
 
 class OffersForm(forms.ModelForm):
     class Meta:
@@ -60,21 +69,23 @@ class ProductFilterForm(forms.Form):
         ('300-400', '$300 - $400'),
         ('400-500', '$400 - $500'),
     ]
-    COLOR_CHOICES = [
-        ('Black', 'Black'),
-        ('White', 'White'),
-        ('Red', 'Red'),
-        ('Blue', 'Blue'),
-        ('Green', 'Green'),
-    ]
-    SIZE_CHOICES = [
-        ('XS', 'XS'),
-        ('S', 'S'),
-        ('M', 'M'),
-        ('L', 'L'),
-        ('XL', 'XL'),
-    ]
+    
+    
+    color = forms.ModelChoiceField(queryset=Color.objects.all(), required=False, empty_label="Any Color")
+    size = forms.ModelChoiceField(queryset=Size.objects.all(), required=False, empty_label="Any Size")
 
     price_range = forms.ChoiceField(choices=PRICE_CHOICES, required=False)
-    color = forms.ChoiceField(choices=COLOR_CHOICES, required=False)
-    size = forms.ChoiceField(choices=SIZE_CHOICES, required=False)
+
+
+
+
+class CouponForm(forms.ModelForm):
+    class Meta:
+        model = Coupon
+        fields = ['code', 'discount', 'valid_from', 'valid_to', 'is_active']
+        widgets = {
+            'valid_from': forms.DateTimeInput(attrs={'type': 'datetime-local'}),
+            'valid_to': forms.DateTimeInput(attrs={'type': 'datetime-local'}),
+        }
+
+   

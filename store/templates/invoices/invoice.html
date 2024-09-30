@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Invoice</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            width: 100%;
+            padding: 20px;
+            background-color: #f8f9fa;
+        }
+        .invoice-header {
+            text-align: center;
+        }
+        .invoice-header h1 {
+            margin: 0;
+        }
+        .invoice-details {
+            margin-top: 20px;
+        }
+        .invoice-details table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .invoice-details th, .invoice-details td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: center;
+        }
+        .total {
+            text-align: right;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Invoice #{{ order.id }}</h1>
+    <p>Status: {{ order.status }}</p>
+    <p>Order Date: {{ order.order_date }}</p>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Products</th>
+                <th>Price</th>
+                <th>Quantity</th>
+                <th>Subtotal</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in items %}
+            <tr>
+                <td>{{ item.product.title }}</td>
+                <td>${{ item.price|floatformat:2 }}</td>
+                <td>{{ item.quantity }}</td>
+                <td>${{ item.subtotal|floatformat:2 }}</td>
+            </tr>
+            {% endfor %}
+            <tr>
+                <td colspan="3" class="text-right"><strong>Subtotal:</strong></td>
+                <td>${{ subtotal|floatformat:2 }}</td>
+            </tr>
+            <tr>
+                <td colspan="3" class="text-right"><strong>Delivery Charge:</strong></td>
+                <td>${{ delivery_charge|floatformat:2 }}</td>
+            </tr>
+            <tr>
+                <td colspan="3" class="text-right"><strong>Total Amount:</strong></td>
+                <td>${{ total_amount|floatformat:2 }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+</body>
+</html>

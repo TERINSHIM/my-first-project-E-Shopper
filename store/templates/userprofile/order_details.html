@@ -99,7 +99,7 @@
 <body>
 
     <div class="sidebar">
-        <h2>John Doe</h2>
+        <h2>{{ request.user.get_full_name }}</h2>
         <a href="{% url 'useraddress' %}"><button>Address</button></a>
         <a href="{% url 'order' %}"><button>Orders</button></a>
     </div>
@@ -111,10 +111,15 @@
             <p>Order Date: {{ order.order_date }}</p>
             <p>Total Amount (excluding delivery): ${{ subtotal|floatformat:2 }}</p>
 
+            <!-- Download Invoice Button -->
+            <a href="{% url 'download_invoice' order.id %}" class="btn btn-primary">Download Invoice (PDF)</a>
+
             <table class="table table-bordered text-center mb-0">
                 <thead>
                     <tr>
                         <th>Products</th>
+                        <th>Color</th>
+                        <th>Size</th>
                         <th>Price</th>
                         <th>Quantity</th>
                         <th>Subtotal</th>
@@ -124,25 +129,26 @@
                     {% for item in order.items.all %}
                     <tr>
                         <td>
-                            <img src="{{ item.product.Featured_image.url }}" alt="{{ item.product.title }}">
+                            <img src="{{ item.product.Featured_image.url }}" alt="{{ item.product.title }}" style="width: 50px;">
                             {{ item.product.title|truncatechars:20 }}
                         </td>
+                        <td>{{ item.color|default:"N/A" }}</td>  <!-- Display chosen color -->
+                        <td>{{ item.size|default:"N/A" }}</td>   <!-- Display chosen size -->
                         <td>${{ item.price|floatformat:2 }}</td>
                         <td>{{ item.quantity }}</td>
                         <td>${{ item.price|floatformat:2 }}</td>
                     </tr>
                     {% endfor %}
-                    <!-- Add a final row for totals -->
                     <tr>
-                        <td colspan="3" class="text-right"><strong>Subtotal:</strong></td>
+                        <td colspan="5" class="text-right"><strong>Subtotal:</strong></td>
                         <td>${{ subtotal|floatformat:2 }}</td>
                     </tr>
                     <tr>
-                        <td colspan="3" class="text-right"><strong>Delivery Charge:</strong></td>
+                        <td colspan="5" class="text-right"><strong>Delivery Charge:</strong></td>
                         <td>${{ delivery_charge|floatformat:2 }}</td>
                     </tr>
                     <tr>
-                        <td colspan="3" class="text-right"><strong>Total Amount:</strong></td>
+                        <td colspan="5" class="text-right"><strong>Total Amount:</strong></td>
                         <td>${{ total_amount|floatformat:2 }}</td>
                     </tr>
                 </tbody>

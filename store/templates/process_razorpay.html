@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+    <h2>Complete Your Payment</h2>
+    <p>User: {{ user.username }}</p>
+    <p>Total Amount: &#8377;{{ total_amount|floatformat:2 }}</p>  <!-- Display the amount in INR -->
+    
+    <!-- Razorpay payment integration -->
+    <form action="{% url 'payment_success' %}" method="POST">
+        {% csrf_token %}
+        <script
+            src="https://checkout.razorpay.com/v1/checkout.js"
+            data-key="{{ razorpay_api_key }}"
+            data-amount="{{ total_amount }}"  
+            data-currency="INR"
+            data-order_id="{{ razorpay_order_id }}"
+            data-buttontext="Pay with Razorpay"
+            data-name="Your Shop Name"
+            data-description="Order Payment"
+            data-image="https://example.com/your_logo.jpg"
+            data-prefill.name="{{ user.username }}"
+            data-prefill.email="{{ user.email }}"
+            data-theme.color="#F37254">
+        </script>
+        <input type="hidden" name="razorpay_payment_id" id="razorpay_payment_id">
+        <input type="hidden" name="order_id" value="{{ payment.id }}">
+    </form>
+</div>
+{% endblock %}

@@ -1,0 +1,46 @@
+{% extends 'adminbase.html' %}
+{% load form_tags %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white">
+            <h4 class="mb-0">Add New Coupon</h4>
+        </div>
+        <div class="card-body">
+            <form action="" method="POST">
+                {% csrf_token %}
+                
+                <div class="form-group">
+                    <label for="id_code">Coupon Code</label>
+                    {{ form.code|add_class:"form-control" }}
+                </div>
+
+                <div class="form-group mt-3">
+                    <label for="id_discount">Discount</label>
+                    {{ form.discount|add_class:"form-control" }}
+                </div>
+
+                <div class="form-group mt-3">
+                    <label for="id_valid_from">Valid From</label>
+                    {{ form.valid_from|add_class:"form-control" }}
+                </div>
+
+                <div class="form-group mt-3">
+                    <label for="id_valid_to">Valid To</label>
+                    {{ form.valid_to|add_class:"form-control" }}
+                </div>
+
+                <div class="form-group mt-3">
+                    <label for="id_is_active">Is Active</label>
+                    {{ form.is_active|add_class:"form-check-input" }}
+                </div>
+
+                <div class="form-group mt-4">
+                    <button type="submit" class="btn btn-success">Add Coupon</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,125 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<!-- Navbar Start -->
+<div class="container-fluid">
+    <div class="row border-top px-xl-5">
+        <div class="col-lg-3 d-none d-lg-block">
+            <a class="btn shadow-none d-flex align-items-center justify-content-between bg-primary text-white w-100" data-toggle="collapse" href="#navbar-vertical" style="height: 65px; margin-top: -1px; padding: 0 30px;">
+                <h6 class="m-0">Categories</h6>
+                <i class="fa fa-angle-down text-dark"></i>
+            </a>
+            <nav class="collapse show navbar navbar-vertical navbar-light align-items-start p-0 border border-top-0 border-bottom-0" id="navbar-vertical">
+                <div class="navbar-nav w-100 overflow-hidden" style="height: auto;">
+                    <!-- Main Categories -->
+                    {% for i in category %}
+                    <div class="nav-item">
+                        <a href="#" class="nav-link" data-toggle="collapse" data-target="#main-category-{{ main_category.id }}">
+                            {{ i.title }} <i class="fa fa-angle-down float-right mt-1"></i>
+                        </a>
+                        <div id="main-category-{{ main_category.id }}" class="collapse">
+                            <!-- Subcategories -->
+                            {% for i2 in i.category_set.all %}
+                            <div class="nav-item">
+                                <a href="#" class="nav-link pl-3" data-toggle="collapse" data-target="#subcategory-{{ subcategory.id }}">
+                                    {{ i2.title }} <i class="fa fa-angle-down float-right mt-1"></i>
+                                </a>
+                                <div id="subcategory-{{ subcategory.id }}" class="collapse">
+                                    <ul class="list-unstyled pl-4">
+                                        <!-- Items under Subcategory -->
+                                        {% for item in i2.subcategory_set.all %}
+                                        <li><a href="#">{{ item.title }}</a></li>
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </nav>
+        </div>
+        <div class="col-lg-9">
+            <nav class="navbar navbar-expand-lg bg-light navbar-light py-3 py-lg-0 px-0">
+                <a href="" class="text-decoration-none d-block d-lg-none">
+                    <h1 class="m-0 display-5 font-weight-semi-bold"><span class="text-primary font-weight-bold border px-3 mr-1">E</span>Shopper</h1>
+                </a>
+                <button type="button" class="navbar-toggler" data-toggle="collapse" data-target="#navbarCollapse">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse justify-content-between" id="navbarCollapse">
+                    <div class="navbar-nav mr-auto py-0">
+                        <a href="index.html" class="nav-item nav-link">Home</a>
+                        <a href="shop.html" class="nav-item nav-link">Shop</a>
+                        
+                        <div class="nav-item dropdown">
+                            <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">Pages</a>
+                            <div class="dropdown-menu rounded-0 m-0">
+                                <a href="cart.html" class="dropdown-item">Shopping Cart</a>
+                                <a href="checkout.html" class="dropdown-item">Checkout</a>
+                            </div>
+                        </div>
+                        <a href="contact.html" class="nav-item nav-link">Contact</a>
+                    </div>
+                    <div class="navbar-nav ml-auto py-0">
+                        {% if user.is_authenticated %}
+                        <a href="{% url 'account_logout' %}" class="nav-item nav-link">Logout</a>
+                        {% else %}
+                        <a href="{% url 'user_login' %}" class="nav-item nav-link">Login</a>
+                        <a href="{% url 'signup' %}" class="nav-item nav-link">Register</a>
+                        
+                        {% endif %}
+                    </div>
+                </div>
+            </nav>
+        </div>
+    </div>
+</div>
+<!-- Navbar End -->
+
+
+<div class="container-fluid pt-5">
+    <div class="row px-xl-5">
+        <div class="col-lg-12 table-responsive mb-5">
+            <table class="table table-bordered text-center mb-0">
+                <thead class="bg-secondary text-dark">
+                    <tr>
+                        <th>Products</th>
+                        <th>Price</th>
+                        <th>Remove</th>
+                        <th>Move to Cart</th>
+                    </tr>
+                </thead>
+                <tbody class="align-middle">
+                    {% for item in wishlist_items %}
+                    <tr>
+                        <td class="align-middle">
+                            <img src="{{ item.product.Featured_image.url }}" alt="" style="width: 50px;">
+                            {{ item.product.title|truncatechars:20 }}
+                        </td>
+                        <td class="align-middle">${{ item.product.price }}</td>
+                        <td class="align-middle">
+                            <form method="post" action="{% url 'remove_from_wishlist' item.product.id %}">
+                                {% csrf_token %}
+                                <button class="btn btn-sm btn-primary"><i class="fa fa-times"></i></button>
+                            </form>
+                        </td>
+                        <td class="align-middle">
+                            <form method="post" action="{% url 'move_to_cart' item.product.id %}">
+                                {% csrf_token %}
+                                <button class="btn btn-sm btn-primary"><i class="fa fa-shopping-cart"></i> Move to Cart</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="4" class="text-center">Your wishlist is empty.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

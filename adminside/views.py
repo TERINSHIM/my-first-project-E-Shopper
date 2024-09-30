@@ -8,6 +8,18 @@ from django.contrib.auth.decorators import user_passes_test
 from django.contrib.auth import logout
 from django.contrib import auth, messages
 AdditionalImageFormSet = modelformset_factory(AdditionalImage, form=AdditionalImageForm, extra=3)
+from .forms import ProductForm, AdditionalImageFormSet 
+from django.db.models import Sum, Count
+from django.utils import timezone
+from datetime import timedelta
+from django.template.loader import get_template
+from django.http import HttpResponse
+from xhtml2pdf import pisa
+from django.shortcuts import render
+from .models import Order
+from django.db.models import Sum
+from django.utils import timezone
+from datetime import timedelta
 
 
 # Create your views here.
@@ -20,7 +32,14 @@ def superuser_required(view_func):
 
 @superuser_required
 def adhome(request):
-    return render(request,'adminbase.html')
+    print(type(request))  # Ensure this is a HttpRequest object, not a str
+    print(request.user)    # Ensure this outputs a user object
+    
+    
+
+    
+
+    return render(request, 'adminbase.html')
 
 #adminlogin
 def adminlogin(request):
@@ -197,8 +216,8 @@ def add_show_product(request):
                     image = form['image']
                     AdditionalImage.objects.create(product=product_instance, image=image)
 
-            form = ProductForm()  # Reset form after successful submission
-            formset = AdditionalImageFormSet(queryset=AdditionalImage.objects.none())  # Reset formset
+            form = ProductForm()  
+            formset = AdditionalImageFormSet(queryset=AdditionalImage.objects.none()) 
     else:
         form = ProductForm()
         formset = AdditionalImageFormSet(queryset=AdditionalImage.objects.none())
@@ -216,25 +235,41 @@ def delete_product(request, id):
 @superuser_required
 def edit_product(request, id):
     product_instance = get_object_or_404(product, id=id)
-    formset = AdditionalImageFormSet(queryset=AdditionalImage.objects.filter(product=product_instance))
-    
+
     if request.method == 'POST':
         form = ProductForm(request.POST, request.FILES, instance=product_instance)
-        formset = AdditionalImageFormSet(request.POST, request.FILES, queryset=AdditionalImage.objects.filter(product=product_instance))
+        formset = AdditionalImageFormSet(request.POST, request.FILES, instance=product_instance)
+
+        if form.is_valid():
+            print("Product form is valid")
+        else:
+            print("Product form is not valid")
+            print(form.errors)
+
+        if formset.is_valid():
+            print("Formset is valid")
+            for form in formset:
+                print(form.cleaned_data)
+        else:
+            print("Formset is not valid")
+            print(formset.errors)
         
         if form.is_valid() and formset.is_valid():
             form.save()
             
+           
             for form in formset:
-                if form.is_valid() and form.cleaned_data:
+                if form.cleaned_data and form.cleaned_data.get('image'):
                     image = form.cleaned_data['image']
                     AdditionalImage.objects.create(product=product_instance, image=image)
 
             return redirect('add_show_product')
     else:
         form = ProductForm(instance=product_instance)
-    
+        formset = AdditionalImageFormSet(instance=product_instance)
+
     return render(request, 'product/edit_product.html', {'form': form, 'formset': formset})
+
 
 @superuser_required
 def user_list(request):
@@ -295,4 +330,176 @@ def admin_order_list(request):
 def logout_view(request):
     logout(request)
     return redirect('adminlogin')
+
+
+
+@superuser_required
+def add_coupon(request):
+    if request.method == 'POST':
+        form = CouponForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Coupon created successfully.')
+            return redirect('coupon_list')  
+    else:
+        form = CouponForm()
+    
+    return render(request, 'coupon/add_coupon.html', {'form': form})
+
+@superuser_required
+def delete_coupon(request, coupon_id):
+    coupon = get_object_or_404(Coupon, id=coupon_id)
+    if request.method == 'POST':
+        coupon.delete()
+        messages.success(request, 'Coupon deleted successfully.')
+        return redirect('coupon_list') 
+    
+    return render(request, 'coupon/delete_coupon.html', {'coupon': coupon})
+
+@superuser_required
+def coupon_list(request):
+    coupons = Coupon.objects.all()
+    return render(request, 'coupon/coupon_list.html', {'coupons': coupons})
+
+
+
+@superuser_required
+def sales_report_view(request):
+    filter_option = request.GET.get('filter', 'custom')
+    start_date = request.GET.get('start_date', None)
+    end_date = request.GET.get('end_date', None)
+    
+    today = timezone.now().date()
+
+    if filter_option == 'daily':
+        start_date = today
+        end_date = today
+    elif filter_option == 'weekly':
+        start_date = today - timedelta(days=today.weekday())
+        end_date = today
+    elif filter_option == 'monthly':
+        start_date = today.replace(day=1)
+        end_date = today
+    elif filter_option == 'custom' and start_date and end_date:
+        start_date = timezone.datetime.strptime(start_date, '%Y-%m-%d').date()
+        end_date = timezone.datetime.strptime(end_date, '%Y-%m-%d').date()
+
+    
+    orders = Order.objects.filter(order_date__date__range=[start_date, end_date])
+
+   
+    total_sales = orders.aggregate(total_sales=Sum('total_amount'))['total_sales'] or 0
+    total_orders = orders.count()
+
+   
+    total_discounts = 0
+    for order in orders:
+        total_discounts += sum(item.price * item.quantity - item.product.price * item.quantity for item in order.items.all())
+
+    net_sales = total_sales - total_discounts
+
+    context = {
+        'orders': orders,
+        'total_sales': total_sales,
+        'total_orders': total_orders,
+        'total_discounts': total_discounts,
+        'net_sales': net_sales,
+        'start_date': start_date,
+        'end_date': end_date,
+        'filter_option': filter_option,
+    }
+
+    return render(request, 'sales_report.html', context)
+
+@superuser_required
+def sales_report_pdf_view(request):
+    filter_option = request.GET.get('filter', 'custom')
+    start_date = request.GET.get('start_date', None)
+    end_date = request.GET.get('end_date', None)
+
+    today = timezone.now().date()
+
+    if filter_option == 'daily':
+        start_date = today
+        end_date = today
+    elif filter_option == 'weekly':
+        start_date = today - timedelta(days=today.weekday())
+        end_date = today
+    elif filter_option == 'monthly':
+        start_date = today.replace(day=1)
+        end_date = today
+    elif filter_option == 'custom' and start_date and end_date:
+        start_date = timezone.datetime.strptime(start_date, '%Y-%m-%d').date()
+        end_date = timezone.datetime.strptime(end_date, '%Y-%m-%d').date()
+
+    orders = Order.objects.filter(order_date__date__range=[start_date, end_date])
+    total_sales = orders.aggregate(total_sales=Sum('total_amount'))['total_sales'] or 0
+    total_orders = orders.count()
+
+    total_discounts = 0
+    for order in orders:
+        total_discounts += sum(item.price * item.quantity - item.product.price * item.quantity for item in order.items.all())
+
+    net_sales = total_sales - total_discounts
+
+    context = {
+        'orders': orders,
+        'total_sales': total_sales,
+        'total_orders': total_orders,
+        'total_discounts': total_discounts,
+        'net_sales': net_sales,
+        'start_date': start_date,
+        'end_date': end_date,
+        'filter_option': filter_option,
+    }
+
+  
+    template = get_template('sales_report.html')
+    html = template.render(context)
+
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = 'attachment; filename="sales_report.pdf"'
+
+    pisa_status = pisa.CreatePDF(html, dest=response)
+
+    if pisa_status.err:
+        return HttpResponse('We had some errors <pre>' + html + '</pre>')
+    
+    return response
+
+
+@superuser_required
+def get_top_products_and_subcategories(time_filter=None):
+  
+    if time_filter == 'monthly':
+        filter_date = timezone.now() - timezone.timedelta(days=30)
+    elif time_filter == 'yearly':
+        filter_date = timezone.now() - timezone.timedelta(days=365)
+    else:
+        filter_date = None
+
+   
+    if filter_date:
+        top_products = Sale.objects.filter(sale_date__gte=filter_date) \
+            .values('product__title') \
+            .annotate(total_sold=Sum('quantity')) \
+            .order_by('-total_sold')[:10]
+    else:
+        top_products = Sale.objects.values('product__title') \
+            .annotate(total_sold=Sum('quantity')) \
+            .order_by('-total_sold')[:10]
+
+   
+    if filter_date:
+        top_subcategories = Sale.objects.filter(sale_date__gte=filter_date) \
+            .values('product__category__subcategory__title') \
+            .annotate(total_sold=Sum('quantity')) \
+            .order_by('-total_sold')[:10]
+    else:
+        top_subcategories = Sale.objects.values('product__category__subcategory__title') \
+            .annotate(total_sold=Sum('quantity')) \
+            .order_by('-total_sold')[:10]
+
+    return top_products, top_subcategories
+
 
