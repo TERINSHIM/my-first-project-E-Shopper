@@ -541,20 +541,19 @@ def remove_from_wishlist(request, product_id):
 
 @login_required(login_url='user_login')
 def move_to_cart(request, product_id):
-    
     product_instance = get_object_or_404(product, id=product_id)
-    
-   
+
     cart_item, created = Cart.objects.get_or_create(user=request.user, product=product_instance)
     if not created:
-       
         cart_item.quantity += 1
     cart_item.save()
 
-   
+    
     Wishlist.objects.filter(user=request.user, product=product_instance).delete()
 
-    
+  
+    messages.success(request, "Your item has been moved to the cart.")
+
     return redirect('wishlist_view')
 
 
