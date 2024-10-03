@@ -1,0 +1,43 @@
+<!-- sales_report_pdf.html -->
+<html>
+<head>
+    <title>Sales Report</title>
+    <style>
+        /* Add minimal styling as per your needs */
+        body { font-family: Arial, sans-serif; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        table, th, td { border: 1px solid black; padding: 8px; text-align: left; }
+        h1 { text-align: center; }
+    </style>
+</head>
+<body>
+    <h1>Sales Report</h1>
+    <p>Report Period: {{ start_date }} to {{ end_date }}</p>
+    <p>Total Orders: {{ total_orders }}</p>
+    <p>Total Sales: &#8377;{{ total_sales }}</p>
+    <p>Total Discounts: &#8377;{{ total_discounts }}</p>
+    <p>Net Sales: &#8377;{{ net_sales }}</p>
+
+    <h2>Orders</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Order ID</th>
+                <th>Date</th>
+                <th>Total Amount</th>
+                <th>Discount</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for order in orders %}
+            <tr>
+                <td>{{ order.id }}</td>
+                <td>{{ order.order_date }}</td>
+                <td>&#8377;{{ order.total_amount }}</td>
+                <td>&#8377;{{ order.discount }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>
