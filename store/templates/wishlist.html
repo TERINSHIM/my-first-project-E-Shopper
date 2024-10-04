@@ -11,22 +11,19 @@
             </a>
             <nav class="collapse show navbar navbar-vertical navbar-light align-items-start p-0 border border-top-0 border-bottom-0" id="navbar-vertical">
                 <div class="navbar-nav w-100 overflow-hidden" style="height: auto;">
-                    <!-- Main Categories -->
                     {% for i in category %}
                     <div class="nav-item">
-                        <a href="#" class="nav-link" data-toggle="collapse" data-target="#main-category-{{ main_category.id }}">
+                        <a href="#" class="nav-link" data-toggle="collapse" data-target="#main-category-{{ i.id }}">
                             {{ i.title }} <i class="fa fa-angle-down float-right mt-1"></i>
                         </a>
-                        <div id="main-category-{{ main_category.id }}" class="collapse">
-                            <!-- Subcategories -->
+                        <div id="main-category-{{ i.id }}" class="collapse">
                             {% for i2 in i.category_set.all %}
                             <div class="nav-item">
-                                <a href="#" class="nav-link pl-3" data-toggle="collapse" data-target="#subcategory-{{ subcategory.id }}">
+                                <a href="#" class="nav-link pl-3" data-toggle="collapse" data-target="#subcategory-{{ i2.id }}">
                                     {{ i2.title }} <i class="fa fa-angle-down float-right mt-1"></i>
                                 </a>
-                                <div id="subcategory-{{ subcategory.id }}" class="collapse">
+                                <div id="subcategory-{{ i2.id }}" class="collapse">
                                     <ul class="list-unstyled pl-4">
-                                        <!-- Items under Subcategory -->
                                         {% for item in i2.subcategory_set.all %}
                                         <li><a href="#">{{ item.title }}</a></li>
                                         {% endfor %}
@@ -52,7 +49,6 @@
                     <div class="navbar-nav mr-auto py-0">
                         <a href="index.html" class="nav-item nav-link">Home</a>
                         <a href="shop.html" class="nav-item nav-link">Shop</a>
-                        
                         <div class="nav-item dropdown">
                             <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">Pages</a>
                             <div class="dropdown-menu rounded-0 m-0">
@@ -68,7 +64,6 @@
                         {% else %}
                         <a href="{% url 'user_login' %}" class="nav-item nav-link">Login</a>
                         <a href="{% url 'signup' %}" class="nav-item nav-link">Register</a>
-                        
                         {% endif %}
                     </div>
                 </div>
@@ -77,7 +72,6 @@
     </div>
 </div>
 <!-- Navbar End -->
-
 
 <div class="container-fluid pt-5">
     <div class="row px-xl-5">
@@ -122,4 +116,5 @@
         </div>
     </div>
 </div>
+
 {% endblock %}

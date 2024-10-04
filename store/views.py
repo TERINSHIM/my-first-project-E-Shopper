@@ -149,19 +149,19 @@ def add_to_cart(request, product_id):
         selected_color_id = request.POST.get('color')
         selected_size_id = request.POST.get('size')
 
-    
-        
-
-       
         cart_item, created = Cart.objects.get_or_create(
             user=request.user, 
             product=product_instance,
-           
         )
 
         if not created:
             cart_item.quantity += 1
             cart_item.save()
+
+        # Reset session variables related to the discount after adding a new item
+        request.session['discounted_total'] = None
+        request.session['discount'] = 0
+        request.session['coupon_code'] = None
 
         return redirect('cart')
 
@@ -176,13 +176,16 @@ def checkout(request):
     cart_items = Cart.objects.filter(user=user)
     subtotal = sum(item.product.price * item.quantity for item in cart_items)
     shipping = 10
-    total = subtotal + shipping
 
     discount = request.session.get('discount', 0)
-    discounted_total = request.session.get('discounted_total', subtotal)
-    coupon_code = request.session.get('coupon_code')
+    discounted_total = request.session.get('discounted_total')
 
-    
+   
+    if not discounted_total:
+        discounted_total = subtotal
+
+    total = discounted_total + shipping
+
     wallet, created = Wallet.objects.get_or_create(user=user)
 
     context = {
@@ -191,9 +194,9 @@ def checkout(request):
         'cart_items': cart_items,
         'subtotal': subtotal,
         'shipping': shipping,
-        'total': discounted_total + shipping,  
+        'total': total,
         'discount': discount,
-        'coupon_code': coupon_code,
+        'coupon_code': request.session.get('coupon_code'),
         'wallet_balance': wallet.balance  
     }
 
@@ -297,25 +300,22 @@ def place_order(request):
 
         wallet = Wallet.objects.get(user=user)
 
-      
-        discounted_total = Decimal(discounted_total)
+        # Shipping charge
+        shipping = 10
+        total_amount = Decimal(discounted_total) + Decimal(shipping)  
 
-       
         if payment_method == 'wallet':
-            if wallet.balance >= discounted_total:
-               
-                wallet.balance -= discounted_total
+            if wallet.balance >= total_amount:
+                wallet.balance -= total_amount
                 wallet.save()
 
-             
                 order = Order.objects.create(
                     user=user,
                     payment_method='wallet',
-                    total_amount=discounted_total,
+                    total_amount=total_amount,  
                     discount=discount
                 )
 
-              
                 for item in cart_items:
                     OrderItem.objects.create(
                         order=order,
@@ -324,15 +324,18 @@ def place_order(request):
                         price=item.product.price
                     )
 
-              
                 cart_items.delete()
 
-             
                 WalletTransaction.objects.create(
                     wallet=wallet,
-                    amount=-discounted_total,
+                    amount=-total_amount, 
                     transaction_type='DEBIT'
                 )
+
+                # Clear session variables after placing the order
+                request.session['discounted_total'] = None
+                request.session['discount'] = 0
+                request.session['coupon_code'] = None
 
                 messages.success(request, 'Your order has been placed successfully using your wallet balance!')
                 return redirect('home')
@@ -343,26 +346,31 @@ def place_order(request):
             client = razorpay.Client(auth=(RAZORPAY_API_KEY, RAZORPAY_API_SECRET))
 
             order_data = {
-                'amount': int(discounted_total * 100),  
+                'amount': int(total_amount * 100),  
                 'currency': 'INR',
-                'payment_capture': '1'  
+                'payment_capture': '1'
             }
             razorpay_order = client.order.create(data=order_data)
 
             payment = Payment.objects.create(
                 user=user,
-                amount=discounted_total,
+                amount=total_amount,  
                 razorpay_order_id=razorpay_order['id'],
                 paid=False
             )
 
             context = {
                 'user': user,
-                'total_amount': int(discounted_total * 100),  
+                'total_amount': int(total_amount * 100),  
                 'razorpay_order_id': razorpay_order['id'],
                 'razorpay_api_key': RAZORPAY_API_KEY,
                 'payment': payment,
             }
+
+            # Clear session variables after placing the order
+            request.session['discounted_total'] = None
+            request.session['discount'] = 0
+            request.session['coupon_code'] = None
 
             return render(request, 'process_razorpay.html', context)
 
@@ -370,8 +378,8 @@ def place_order(request):
             order = Order.objects.create(
                 user=user,
                 payment_method=payment_method,
-                total_amount=discounted_total,
-                discount=discount  
+                total_amount=total_amount,  
+                discount=discount
             )
 
             for item in cart_items:
@@ -383,6 +391,11 @@ def place_order(request):
                 )
 
             cart_items.delete()
+
+            # Clear session variables after placing the order
+            request.session['discounted_total'] = None
+            request.session['discount'] = 0
+            request.session['coupon_code'] = None
 
             messages.success(request, 'Your order has been placed successfully!')
 
@@ -541,20 +554,19 @@ def remove_from_wishlist(request, product_id):
 
 @login_required(login_url='user_login')
 def move_to_cart(request, product_id):
-    
     product_instance = get_object_or_404(product, id=product_id)
-    
-   
+
     cart_item, created = Cart.objects.get_or_create(user=request.user, product=product_instance)
     if not created:
-       
         cart_item.quantity += 1
     cart_item.save()
 
-   
+    
     Wishlist.objects.filter(user=request.user, product=product_instance).delete()
 
-    
+  
+    messages.success(request, "Your item has been moved to the cart.")
+
     return redirect('wishlist_view')
 
 

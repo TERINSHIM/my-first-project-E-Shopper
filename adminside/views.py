@@ -454,7 +454,7 @@ def sales_report_pdf_view(request):
     }
 
   
-    template = get_template('sales_report.html')
+    template = get_template('sales_report_pdf.html')
     html = template.render(context)
 
     response = HttpResponse(content_type='application/pdf')
@@ -501,5 +501,8 @@ def get_top_products_and_subcategories(time_filter=None):
             .order_by('-total_sold')[:10]
 
     return top_products, top_subcategories
+
+
+
 
 
