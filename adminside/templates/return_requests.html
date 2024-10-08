@@ -1,0 +1,39 @@
+{% extends 'adminbase.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white">
+            <h4 class="mb-0">Return Requests</h4>
+        </div>
+        <div class="card-body">
+            <table class="table table-bordered table-striped">
+                <thead class="thead-dark">
+                    <tr>
+                        <th>Order ID</th>
+                        <th>User</th>
+                        <th>Amount</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for order in return_requests %}
+                    <tr>
+                        <td>{{ order.id }}</td>
+                        <td>{{ order.user.username }}</td>
+                        <td>&#8377;{{ order.total_amount }}</td>
+                        <td>{{ order.status }}</td>
+                        <td>
+                            <a href="{% url 'approve_return_request' order.id %}" class="btn btn-success btn-sm">Approve</a>
+                            <a href="{% url 'reject_return_request' order.id %}" class="btn btn-danger btn-sm">Reject</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

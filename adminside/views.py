@@ -273,7 +273,8 @@ def edit_product(request, id):
 
 @superuser_required
 def user_list(request):
-    users = User.objects.all()
+    # Ordering the users by ID in descending order (LIFO)
+    users = User.objects.all().order_by('-id')
     return render(request, 'users/user_list.html', {'users': users})
 @superuser_required
 def block_user(request, id):
@@ -314,7 +315,7 @@ def edit_user(request, id):
 
 @superuser_required
 def admin_order_list(request):
-    orders = Order.objects.all()
+    orders = Order.objects.all().order_by('-id')
 
     if request.method == 'POST':
         order_id = request.POST.get('order_id')
@@ -501,6 +502,53 @@ def get_top_products_and_subcategories(time_filter=None):
             .order_by('-total_sold')[:10]
 
     return top_products, top_subcategories
+
+
+@superuser_required
+def approve_return_request(request, order_id):
+    order = get_object_or_404(Order, id=order_id)
+
+    if order.status == 'Return Requested':
+        order.status = 'Returned'
+        order.save()
+
+        # Trigger wallet transaction logic from the `return_order` view
+        wallet = Wallet.objects.get(user=order.user)
+        wallet.balance += order.total_amount
+        wallet.save()
+
+        WalletTransaction.objects.create(
+            wallet=wallet,
+            amount=order.total_amount,
+            transaction_type='CREDIT',
+            description=f"Order #{order.id} returned"
+        )
+
+        messages.success(request, "Return request approved and wallet credited.")
+    
+    return redirect('return_requests')
+
+
+@superuser_required
+def reject_return_request(request, order_id):
+    order = get_object_or_404(Order, id=order_id)
+
+    if order.status == 'Return Requested':
+        order.status = 'Return Rejected'
+        order.save()
+        messages.error(request, "Return request rejected.")
+    
+    return redirect('return_requests')
+
+
+
+@superuser_required
+def return_requests_view(request):
+    # Fetch all orders where the status is 'Return Requested'
+    return_requests = Order.objects.filter(status='Return Requested')
+
+    # Render the template with the fetched orders
+    return render(request, 'return_requests.html', {'return_requests': return_requests})
 
 
 
