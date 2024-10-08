@@ -239,7 +239,8 @@ def update_cart(request):
 
 @login_required(login_url='user_login')
 def order(request):
-    orders = Order.objects.filter(user=request.user)
+    # Ordering the orders by ID in descending order (LIFO)
+    orders = Order.objects.filter(user=request.user).order_by('-id')
     return render(request, 'userprofile/order.html', {'orders': orders})
 
 
@@ -486,11 +487,11 @@ def cancel_order(request, id):
 def return_order(request, id):
     order = get_object_or_404(Order, id=id, user=request.user)
     
-    if order.status not in ['Cancelled', 'Returned']:  
+    if order.status == 'Return Requested':  # Ensure that the return request was made
         order.status = 'Returned'
         order.save()
-        
-        
+
+        # Wallet transaction logic
         wallet = Wallet.objects.get(user=request.user)
         wallet.balance += order.total_amount
         wallet.save()
@@ -505,6 +506,25 @@ def return_order(request, id):
         messages.success(request, "Your order has been returned and the amount has been credited to your wallet.")
     
     return redirect('order')
+
+
+
+@login_required(login_url='user_login')
+def request_return_order(request, id):
+    order = get_object_or_404(Order, id=id, user=request.user)
+    
+    if order.status == 'Return Requested':
+        messages.info(request, "Your return request is already pending.")
+        return redirect('order')
+    
+    if order.status == 'Delivered':
+        order.status = 'Return Requested'
+        order.save()
+        messages.success(request, "Your return request has been submitted. Please wait for admin confirmation.")
+    
+    return redirect('order')
+
+
 
 @login_required(login_url='user_login')
 def wallet_view(request):
@@ -575,36 +595,50 @@ def move_to_cart(request, product_id):
 def apply_coupon(request):
     if request.method == 'POST':
         code = request.POST.get('coupon_code')
+        
+        # Check if coupon code is empty
+        if not code:
+            messages.success(request, "Please enter a coupon code.")
+            return redirect('checkout')
+
         try:
-            coupon = get_object_or_404(Coupon, code=code)
+            coupon = Coupon.objects.get(code=code)  # Use Coupon.objects.get() instead of get_object_or_404
             if coupon.is_valid():
-               
                 user = request.user
                 cart_items = Cart.objects.filter(user=user)
                 subtotal = sum(Decimal(item.product.price) * item.quantity for item in cart_items)
                 
-             
+                # Calculate discount
                 discount = (coupon.discount / 100) * subtotal
                 discounted_total = subtotal - discount
                 
-                
+                # Save coupon details in session
                 request.session['coupon_code'] = coupon.code
                 request.session['discount'] = float(discount)
                 request.session['discounted_total'] = float(discounted_total)
 
                 messages.success(request, f"Coupon '{coupon.code}' applied successfully!")
             else:
-                messages.error(request, "This coupon has expired or is inactive.")
+                messages.success(request, "This coupon has expired or is inactive.")
         except Coupon.DoesNotExist:
-            messages.error(request, "Invalid coupon code.")
+            # Handle invalid coupon codes
+            messages.success(request, "Invalid coupon code.")
     
     return redirect('checkout')
 
 @login_required(login_url='user_login')
 def remove_coupon(request):
+    # Check if the coupon_code is in the session and remove it along with the discount-related data
     if 'coupon_code' in request.session:
         del request.session['coupon_code']
-        messages.success(request, "Coupon removed successfully.")
+    
+    if 'discount' in request.session:
+        del request.session['discount']
+    
+    if 'discounted_total' in request.session:
+        del request.session['discounted_total']
+    
+    messages.success(request, "Coupon removed successfully.")
     
     return redirect('cart')
 

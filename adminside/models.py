@@ -162,19 +162,25 @@ class Order(models.Model):
         ('Processing', 'Processing'),
         ('Shipped', 'Shipped'),
         ('Delivered', 'Delivered'),
+        ('Return Requested', 'Return Requested'),
+        ('Returned', 'Returned'),
+        ('Return Rejected', 'Return Rejected'),
     ]
 
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     payment_method = models.CharField(max_length=100)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Pending')
     total_amount = models.DecimalField(max_digits=10, decimal_places=2)
-    discount = models.DecimalField(max_digits=10, decimal_places=2, default=0)  
-    coupon = models.ForeignKey(Coupon, null=True, blank=True, on_delete=models.SET_NULL)  
+    discount = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    coupon = models.ForeignKey(Coupon, null=True, blank=True, on_delete=models.SET_NULL)
     order_date = models.DateTimeField(auto_now_add=True)
     payment = models.OneToOneField('Payment', on_delete=models.SET_NULL, null=True, blank=True)
+    
+    return_requested = models.BooleanField(default=False)  # New field to track return request
 
     def __str__(self):
         return f"Order {self.id} - {self.user.username}"
+
 
    
 

@@ -122,18 +122,31 @@
                             {% endif %}
                             
                             <div class="order-buttons">
-                                <a href="{% url 'orderdetails' id=order.id %}"><button>View Details</button></a>
-                                
-                                {% if order.status != 'Cancelled' and order.status != 'Returned' %}
+                                <!-- Show View Details button only if the status is Pending, Processing, Shipped, or Delivered -->
+                                {% if order.status == 'Pending' or order.status == 'Processing' or order.status == 'Shipped' or order.status == 'Delivered' %}
+                                    <a href="{% url 'orderdetails' id=order.id %}"><button>View Details</button></a>
+                                {% endif %}
+                            
+                                <!-- Show Cancel button only if the status is Pending or Processing -->
+                                {% if order.status == 'Shipped' or order.status == 'Processing' %}
                                     <form action="{% url 'cancel_order' order.id %}" method="post" style="display:inline;">
                                         {% csrf_token %}
                                         <button type="submit">Cancel</button>
                                     </form>
-                                    <form action="{% url 'return_order' order.id %}" method="post" style="display:inline;">
-                                        {% csrf_token %}
-                                        <button type="submit">Return</button>
-                                    </form>
                                 {% endif %}
+                            
+                                <!-- Show Return button only if the status is Delivered -->
+                                {% if order.status == 'Delivered' and not order.return_requested %}
+                                    <form action="{% url 'request_return_order' order.id %}" method="post" style="display:inline;">
+                                        {% csrf_token %}
+                                        <button type="submit">Request Return</button>
+                                    </form>
+                                {% elif order.status == 'Return Requested' %}
+                                    <p>Return request is pending admin confirmation...</p>
+                                {% elif order.status == 'Returned' %}
+                                    <p>Return confirmed, amount credited to your wallet.</p>
+                                {% endif %}
+
                             </div>
                             
                         </div>
